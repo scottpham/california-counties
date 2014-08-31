@@ -1,0 +1,118 @@
+<html>
+<head>
+	<title></title>
+
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="//d3js.org/topojson.v1.min.js"></script>
+
+<style>
+
+.subunit.San.Francisco,
+.subunit.mateo,
+.subunit.alameda,
+.subunit.santa.clara {
+	fill: maroon;
+	stroke: white;
+	stroke-linejoin: round;
+}
+
+.subunit {
+	fill: steelblue;
+	stroke: white;
+	stroke-width: 1px;
+}
+
+.subunit:hover {
+	opacity: 0.7;
+	fill: lightyellow;
+
+}
+
+.exterior-boundary {
+	fill: none;
+	stroke: black;
+	stroke-linejoin: round;
+	stroke-width: 2px;
+}
+
+div.tooltip {
+	position: absolute;
+	text-align: center;
+	width: 75px;
+	padding: 2px;
+	font: 12px sans-serif;
+	color: white;
+	background: black;
+	border: 0px;
+	border-radius: 8px;
+	pointer-events: none;
+}
+
+</style>
+
+</head>
+<body>
+	<h1>California TopoJSON with D3</h1>
+	<div id = "map"></div>
+
+<script>
+
+	var width = 650,
+		height = 600;
+
+	var  projection = d3.geo.mercator()
+			.scale(1000 * 2)
+			.center([-120, 36])
+			.translate([width/2, height/2]);
+
+	//var projection = d3.geo.albersUsa() //works but tried another method above
+	//	.scale(2500)
+	//	.translate([1000, 360]);
+
+	var path = d3.geo.path()
+		.projection(projection);
+
+	var svg = d3.select("#map").append("svg")
+		.attr("width", width)
+		.attr("height", height);
+
+	d3.json("ca-counties-topo-simple.json", function(error, ca){
+		console.log(ca.objects.caCounties);
+
+		svg.append("path")
+			.datum(topojson.feature(ca, ca.objects.caCounties))
+			.attr("class", "land")
+			.attr("d", path);
+
+		//bind feature data to the map
+		svg.selectAll(".subunit")
+			.data(topojson.feature(ca, ca.objects.caCounties).features)
+			.enter().append("path")
+			.attr("class", function(d) { return "subunit " + d.properties.name; })
+			.attr("d", path)
+			.on("mouseover", function(d){ //tooltip
+				div.transition()
+					.duration(200)
+					.style("opacity", .9);
+				div.html( d.properties.fullName)
+					.style("left", (d3.event.pageX) + 10 + "px") //position relative
+					.style("top", (d3.event.pageY - 30 + "px"));
+			});
+
+		//exterior border
+		svg.append("path")
+			.datum(topojson.mesh(ca, ca.objects.caCounties, function(a, b) { return a === b;}))
+			.attr("d", path)
+			.attr("class", "exterior-boundary");
+
+		//tooltop declaration
+		var div = d3.select("#map").append("div")
+			.attr("class", "tooltip")
+			.style("opacity", 0);
+	});
+
+	//36.980106, -119.317593
+</script>
+
+</body>
+</html>
