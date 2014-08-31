@@ -77,7 +77,7 @@ div.tooltip {
 		.attr("height", height);
 
 	d3.json("ca-counties-topo-simple.json", function(error, ca){
-		console.log(ca.objects.caCounties);
+		//console.log(ca.objects.caCounties); //for navigating the data in the console
 
 		svg.append("path")
 			.datum(topojson.feature(ca, ca.objects.caCounties))
@@ -86,7 +86,7 @@ div.tooltip {
 
 		//bind feature data to the map
 		svg.selectAll(".subunit")
-			.data(topojson.feature(ca, ca.objects.caCounties).features)
+			  .data(topojson.feature(ca, ca.objects.caCounties).features)
 			.enter().append("path")
 			.attr("class", function(d) { return "subunit " + d.properties.name; })
 			.attr("d", path)
@@ -94,15 +94,15 @@ div.tooltip {
 				div.transition()
 					.duration(200)
 					.style("opacity", .9);
-				div.html( d.properties.fullName)
-					.style("left", (d3.event.pageX) + 10 + "px") //position relative
-					.style("top", (d3.event.pageY - 30 + "px"))
+				div.html(d.properties.fullName)
+					.style("left", (d3.event.pageX) + 10 + "px")
+					.style("top", (d3.event.pageY - 30) + "px"); 
+			})
 			.on("mouseout", function(d) { 
 				div.transition()
-					.duration(200)
-					.style("opacity", 0);
+					.duration(500)
+					.style("opacity", 0.0);
 			});
-		});
 
 		//exterior border
 		svg.append("path")
